@@ -13,6 +13,9 @@ import android.view.ViewGroup;
 import android.os.Build;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Arrays;
+
 import rx.Observable;
 
 import retrofit.Callback;
@@ -30,12 +33,11 @@ import rx.util.functions.Func1;
 
 public class MainActivity extends ActionBarActivity {
     TextView theView;
-    String[] cities={"Atlanta","Delhi","california"};
+    String[] cities={"Atlanta","Delhi","California"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.thelayout);
-        theView=(TextView)findViewById(R.id.textView);
 
         Observable.from(cities).mapMany(new Func1<String, Observable<WeatherData>>() {
             @Override
@@ -45,7 +47,26 @@ public class MainActivity extends ActionBarActivity {
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<WeatherData>() {
             @Override
             public void call(WeatherData weatherData) {
-                theView.setText(weatherData.main.humidity+"");
+                int theindex=Arrays.asList(cities).indexOf(weatherData.name);
+                TextView textView=null;
+                switch(theindex){
+                    case 0:{
+                        textView=(TextView)findViewById(R.id.atltextView);
+                        break;
+                    }
+                    case 1:{
+                        textView=(TextView)findViewById(R.id.deltextView);
+                        break;
+                    }
+                    case 2:{
+                        textView=(TextView)findViewById(R.id.calitextView);
+                        break;
+                    }
+                }
+                double temp=weatherData.main.temp;
+                textView.setText(temp+"");
+                Log.v("weatherapp",weatherData.name+" "+  Arrays.asList(cities).indexOf(weatherData.name));
+
             }
         });
 
